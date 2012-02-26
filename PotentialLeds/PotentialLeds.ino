@@ -12,6 +12,11 @@ int ledPins [] = { 13, 11, 9, 7 };
 static int POTMIN = 0;
 static int POTMAX = 750;
 
+static int INCREASE = 1;
+static int DECREASE = -1;
+
+inc direction = INCREASE;
+
 int highestLedPotVal = (POTMAX - (POTMAX / sizeof(ledPins)));
 boolean alert = false;
 int alertPin = 0;
@@ -31,10 +36,15 @@ void loop() {
   
   alert = (val > (POTMAX));
     
-  alertPin = alertPin + 1;
- if (alertPin == sizeof(ledPins)) {
-      alertPin = 0;
- }
+  if (alertPin == sizeof(ledPins)) {
+      direction = DECREASE;
+  }
+  
+  if (alertPin == -1) {
+      direction = INCREASE;
+  }
+  
+  alertPin = alertPin + direction;
 
   if (alert) {
     for (int i=0; i < sizeof(ledPins); i++) {
