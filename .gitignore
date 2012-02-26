@@ -3,3 +3,4 @@
 */build-cli/**
 */SerialMonitor.class
 */Makefile
+.DS_Store

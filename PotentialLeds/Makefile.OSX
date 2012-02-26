@@ -13,8 +13,15 @@ AVRDUDE_CONF   = $(ARDUINO_DIR)/hardware/tools/avr/etc/avrdude.conf
 
 include ../arduino-mk-0.8/Arduino.mk
 
+# To make the serial monitor work in OSX Lion, download the 64bit build of
+# librxtxSerial.jnilib from
+# http://blog.iharder.net/2009/08/18/rxtx-java-6-and-librxtxserial-jnilib-on-intel-mac-os-x/
+# and point the java.library.path to the folder you put it in. Also run the
+# following commands:
+# $ sudo mkdir /var/lock     
+# $ sudo chmod 777 /var/lock  
 monitor: SerialMonitor.class 
-	java -cp $(ARDUINO_DIR)/RXTXcomm.jar:. SerialMonitor
+	java -Djava.library.path=../ -cp $(ARDUINO_DIR)/RXTXcomm.jar:. SerialMonitor
 
 SerialMonitor.class:
 	javac -cp $(ARDUINO_DIR)/RXTXcomm.jar ../SerialMonitor.java
