@@ -12,3 +12,11 @@ AVRDUDE_CONF   = /etc/avrdude.conf
 
 include ../arduino-mk-0.8/Arduino.mk
 
+monitor: SerialMonitor.class 
+	java -cp $(ARDUINO_DIR)/lib/RXTXcomm.jar:. SerialMonitor
+
+SerialMonitor.class:
+	javac -cp $(ARDUINO_DIR)/lib/RXTXcomm.jar ../SerialMonitor.java
+	mv ../SerialMonitor.class ./
+
+
