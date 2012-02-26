@@ -10,5 +10,5 @@ ARDUINO_PORT = /dev/ttyACM0
 AVR_TOOLS_PATH = /usr/bin
 AVRDUDE_CONF   = /etc/avrdude.conf
 
-include Arduino.mk
+include arduino-mk-0.8/Arduino.mk
 
