@@ -14,7 +14,7 @@ static int POTMAX = 750;
 
 int highestLedPotVal = (POTMAX - (POTMAX / sizeof(ledPins)));
 boolean alert = false;
-int alertOnState = 0;
+int alertPin = 0;
 int val = 0; 
 
 void setup() {
@@ -31,14 +31,14 @@ void loop() {
   
   alert = (val > (POTMAX));
     
-  alertOnState = alertOnState + 1;
- if (alertOnState == sizeof(ledPins)) {
-      alertOnState = 0;
+  alertPin = alertPin + 1;
+ if (alertPin == sizeof(ledPins)) {
+      alertPin = 0;
  }
 
   if (alert) {
     for (int i=0; i < sizeof(ledPins); i++) {
-      if (i == alertOnState) {
+      if (i == alertPin) {
            digitalWrite(ledPins[i], HIGH);    
       } else {
            digitalWrite(ledPins[i], LOW);    
