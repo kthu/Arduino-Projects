@@ -51,5 +51,5 @@ void loop() {
     }
   }  
     
-  delay(100);          // not so fast!
+  delay(10);          // not so fast!
 }
