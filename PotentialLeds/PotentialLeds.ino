@@ -32,7 +32,7 @@ void setup() {
 
 void loop() {
   val = analogRead(potPin);    // read the value from the sensor
-  // Serial.println(val);   
+  Serial.println(val);   
   
   alert = (val > (POTMAX));
     
