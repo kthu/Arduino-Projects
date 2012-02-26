@@ -7,7 +7,7 @@
  */
 
 int potPin = 2;
-int ledPins [] = { 13, 11, 9, 7 };
+int ledPins [] = { 7, 9, 11, 13 };
 
 static int POTMIN = 0;
 static int POTMAX = 750;
@@ -17,13 +17,14 @@ static int DECREASE = -1;
 
 inc direction = INCREASE;
 
-int highestLedPotVal = (POTMAX - (POTMAX / sizeof(ledPins)));
+int numberOfLeds (sizeof(ledPins) / sizeof(int));
+int highestLedPotVal = (POTMAX - (POTMAX / numverOfLeds));
 boolean alert = false;
-int alertPin = 0;
+int alertLed = 0;
 int val = 0; 
 
 void setup() {
-  for (int i=0; i < sizeof(ledPins); i++) {
+  for (int i=0; i < numberOfLeds; i++) {
     pinMode(ledPins[i], OUTPUT);
   }
   
@@ -36,19 +37,19 @@ void loop() {
   
   alert = (val > (POTMAX));
     
-  if (alertPin == sizeof(ledPins)) {
+  if (alertLed == numberOfLeds) {
       direction = DECREASE;
   }
   
-  if (alertPin == -1) {
+  if (alertLed == -1) {
       direction = INCREASE;
   }
   
-  alertPin = alertPin + direction;
+  alertLed = alertLed + direction;
 
   if (alert) {
-    for (int i=0; i < sizeof(ledPins); i++) {
-      if (i == alertPin) {
+    for (int i=0; i < numberOfLeds); i++) {
+      if (i == alertLed) {
            digitalWrite(ledPins[i], HIGH);    
       } else {
            digitalWrite(ledPins[i], LOW);    
@@ -57,7 +58,7 @@ void loop() {
     
 
   } else {
-    for (int i=0; i < sizeof(ledPins); i++) {    
+    for (int i=0; i < numberOfLeds; i++) {    
       if (val > (highestLedPotVal / (i + 1)) ) {  
         digitalWrite(ledPins[i], HIGH);
       } else {
