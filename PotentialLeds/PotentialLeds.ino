@@ -15,10 +15,10 @@ static int POTMAX = 750;
 static int INCREASE = 1;
 static int DECREASE = -1;
 
-inc direction = INCREASE;
+int direction = INCREASE;
 
 int numberOfLeds (sizeof(ledPins) / sizeof(int));
-int highestLedPotVal = (POTMAX - (POTMAX / numverOfLeds));
+int highestLedPotVal = (POTMAX - (POTMAX / numberOfLeds));
 boolean alert = false;
 int alertLed = 0;
 int val = 0; 
