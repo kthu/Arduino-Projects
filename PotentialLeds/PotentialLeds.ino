@@ -14,7 +14,7 @@ static int POTMAX = 750;
 
 int highestLedPotVal = (POTMAX - (POTMAX / sizeof(ledPins)));
 boolean alert = false;
-int alertOnState = HIGH;
+int alertOnState = 0;
 int val = 0; 
 
 void setup() {
@@ -30,17 +30,22 @@ void loop() {
   // Serial.println(val);   
   
   alert = (val > (POTMAX));
+    
+  alertOnState = alertOnState + 1;
+ if (alertOnState == sizeof(ledPins)) {
+      alertOnState = 0;
+ }
 
   if (alert) {
-    if (alertOnState == HIGH) {
-      alertOnState = LOW;
-    } else {
-      alertOnState = HIGH;
-    }
-
     for (int i=0; i < sizeof(ledPins); i++) {
-        digitalWrite(ledPins[i], alertOnState);    
+      if (i == alertOnState) {
+           digitalWrite(ledPins[i], HIGH);    
+      } else {
+           digitalWrite(ledPins[i], LOW);    
+      }
     }
+    
+
   } else {
     for (int i=0; i < sizeof(ledPins); i++) {    
       if (val > (highestLedPotVal / (i + 1)) ) {  
@@ -51,5 +56,5 @@ void loop() {
     }
   }  
     
-  delay(10);          // not so fast!
+  delay(100);          // not so fast!
 }
