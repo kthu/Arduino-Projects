@@ -1,0 +1,23 @@
+# Makefile for MacOS Lion. Make symbolic link to Makefile. Depends on
+# Arduino IDE 1.0 being installed, java and perl with libyaml-perl
+ARDUINO_DIR  = /Applications/Arduino.app/Contents/Resources/Java/
+
+TARGET       = CLItest
+ARDUINO_LIBS = Ethernet Ethernet/utility SPI
+
+BOARD_TAG    = uno
+ARDUINO_PORT = /dev/tty.usbmodem621
+
+AVR_TOOLS_PATH = $(ARDUINO_DIR)/hardware/tools/avr/bin/
+AVRDUDE_CONF   = $(ARDUINO_DIR)/hardware/tools/avr/etc/avrdude.conf
+
+include ../arduino-mk-0.8/Arduino.mk
+
+monitor: SerialMonitor.class 
+	java -cp $(ARDUINO_DIR)/RXTXcomm.jar:. SerialMonitor
+
+SerialMonitor.class:
+	javac -cp $(ARDUINO_DIR)/RXTXcomm.jar ../SerialMonitor.java
+	mv ../SerialMonitor.class ./
+
+

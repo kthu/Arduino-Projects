@@ -12,7 +12,7 @@ public class SerialMonitor implements SerialPortEventListener {
    SerialPort serialPort;
    /** The port we're normally going to use. */
    private static final String PORT_NAMES[] = { 
-      "/dev/tty.usbserial-A9007UX1", // Mac OS X
+      "/dev/tty.usbmodem621", // Mac OS X
       "/dev/ttyACM0", // Linux
       "COM3", // Windows
    };

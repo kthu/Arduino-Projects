@@ -1,4 +1,5 @@
-
+# Makefile for Ubuntu 11.10.  Make symbolic link to Makefile. Depends
+# on Arduino IDE 1.0 being installed, java and perl with libyaml-perl
 ARDUINO_DIR  = /usr/share/arduino/
 
 TARGET       = CLItest
