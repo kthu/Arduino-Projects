@@ -215,7 +215,7 @@ BOARDS_TXT  = $(ARDUINO_DIR)/hardware/arduino/boards.txt
 endif
 
 ifndef PARSE_BOARD
-PARSE_BOARD = arduino-mk-0.8/ard-parse-boards --boards_txt=$(BOARDS_TXT)
+PARSE_BOARD = ../arduino-mk-0.8/ard-parse-boards --boards_txt=$(BOARDS_TXT)
 endif
 
 # Which variant ? This affects the include path
