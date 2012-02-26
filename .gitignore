@@ -4,3 +4,4 @@
 */SerialMonitor.class
 */Makefile
 .DS_Store
+librxtxSerial.jnilib

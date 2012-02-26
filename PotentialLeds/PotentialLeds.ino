@@ -45,6 +45,7 @@ void loop() {
       }
 
       alertLed = alertLed + direction;
+      //alertLed = random(numberOfLeds);
       for (int i=0; i < numberOfLeds; i++) {
          if (i == alertLed) {
             digitalWrite(ledPins[i], HIGH);    
@@ -52,6 +53,7 @@ void loop() {
             digitalWrite(ledPins[i], LOW);    
          }
       }
+      delay(100);          // not so fast!
    } else {
       for (int i=0; i < numberOfLeds; i++) {    
          if (val > (highestLedPotVal / (i + 1)) ) {  
@@ -62,5 +64,4 @@ void loop() {
       }
    }  
 
-   delay(100);          // not so fast!
 }
