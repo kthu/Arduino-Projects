@@ -1,0 +1,30 @@
+# Makefile for MacOS Lion. Make symbolic link to Makefile. Depends on
+# Arduino IDE 1.0 being installed, java and perl with libyaml-perl
+ARDUINO_DIR  = /Applications/Arduino.app/Contents/Resources/Java/
+
+TARGET       = CLItest
+ARDUINO_LIBS = Ethernet Ethernet/utility SPI
+
+BOARD_TAG    = uno
+ARDUINO_PORT = /dev/tty.usbmodem621
+
+AVR_TOOLS_PATH = $(ARDUINO_DIR)/hardware/tools/avr/bin/
+AVRDUDE_CONF   = $(ARDUINO_DIR)/hardware/tools/avr/etc/avrdude.conf
+
+include ../arduino-mk-0.8/Arduino.mk
+
+# To make the serial monitor work in OSX Lion, download the 64bit build of
+# librxtxSerial.jnilib from
+# http://blog.iharder.net/2009/08/18/rxtx-java-6-and-librxtxserial-jnilib-on-intel-mac-os-x/
+# and point the java.library.path to the folder you put it in. Also run the
+# following commands:
+# $ sudo mkdir /var/lock     
+# $ sudo chmod 777 /var/lock  
+monitor: SerialMonitor.class 
+	java -Djava.library.path=../ -cp $(ARDUINO_DIR)/RXTXcomm.jar:. SerialMonitor
+
+SerialMonitor.class:
+	javac -cp $(ARDUINO_DIR)/RXTXcomm.jar ../SerialMonitor.java
+	mv ../SerialMonitor.class ./
+
+
