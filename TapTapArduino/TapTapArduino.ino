@@ -9,7 +9,7 @@ int greenLedPin = 2;
 int buttonPin = 13;
 
 static int AXISVALTICKS=10;
-static int TICKSDELAY=100;
+static int TICKSDELAY=50;
 static int SILENTTHRESHHOLD=2;
 static char PASSWORD [3] = "GN";
 
@@ -30,13 +30,14 @@ int get_axis() {
    int tick_count = 0;
    boolean tap = false;
    while (true) {
-      tap  = (digitalRead(buttonPin) == HIGH);
+      tap  = (digitalRead(buttonPin) == LOW);
       if (tick_count == AXISVALTICKS) {
          tick_count = 0;
          if (tap) {
             silent_duration = 0;
             value++;
             tap = false;
+            Serial.println("tap");
          } else {
             if (value > 0) {
                silent_duration++;
@@ -65,7 +66,7 @@ void loop() {
    int y = get_axis()-1;
    char letter = alphabet[x][y];
 #ifdef DEBUG
-   Serial.print(letter);
+   Serial.println(letter);
 #endif
 
    if (password_ok) {
