@@ -1,27 +1,41 @@
 /* 
  * TapTap Arduino
+ * 
+ * Listens for tap codes from a button. Lights up led when tap code matches password
  */
 
 #define DEBUG true
+#define AXISVALTICKS 10
+#define RESOLUTION 20
+#define SILENTTHRESHHOLD 2
 
-int redLedPin = 3;
-int greenLedPin = 2;
-int buttonPin = 13;
+#define REDLEDPIN 2
+#define GREENLEDPIN 3
+#define BUTTONPIN 13
+#define PASSWORDLENGTH 5
 
-static int AXISVALTICKS=10;
-static int TICKSDELAY=50;
-static int SILENTTHRESHHOLD=2;
-static char PASSWORD [3] = "GN";
+static char password[] = "HALLO";
+static char alphabet[5][5] = {{'A','B','C','D','E' },{'F','G','H','I','J'},{'L','M','N','O','P'},{'Q','R','S','T','U'},{'V','W','X','Y','Z'}};
+   
+struct queue {
+   char code[PASSWORDLENGTH+1];
+   int insert_point;  
+} code_queue;
 
-static char alphabet [5][5]= {{'A','B','C','D','E' },{'F','G','H','I','J'},{'L','M','N','O','P'},{'Q','R','S','T','U'},{'V','W','X','Y','Z'}};
+void set_status_ok() {
+   digitalWrite(REDLEDPIN, LOW);
+   digitalWrite(GREENLEDPIN, HIGH);
+}
 
-void setup() {
+void set_status_not_ok() {
+   digitalWrite(REDLEDPIN, HIGH);
+   digitalWrite(GREENLEDPIN, LOW);
+}
+
+void debug(char* message) {
 #ifdef DEBUG
-   Serial.begin(9600);
+   Serial.println(message);
 #endif
-   pinMode(greenLedPin, OUTPUT);
-   pinMode(redLedPin, OUTPUT);
-   pinMode(buttonPin, INPUT);
 }
 
 int get_axis() {
@@ -30,14 +44,17 @@ int get_axis() {
    int tick_count = 0;
    boolean tap = false;
    while (true) {
-      tap  = (digitalRead(buttonPin) == LOW);
+      tap  = (digitalRead(BUTTONPIN) == LOW);
       if (tick_count == AXISVALTICKS) {
          tick_count = 0;
          if (tap) {
             silent_duration = 0;
             value++;
             tap = false;
-            Serial.println("tap");
+            debug("tap");
+            while (digitalRead(BUTTONPIN) == LOW) {
+            }
+            debug("released");
          } else {
             if (value > 0) {
                silent_duration++;
@@ -53,27 +70,52 @@ int get_axis() {
       }
 
       tick_count++;
-      delay (TICKSDELAY);
+      delay (RESOLUTION);
    }
 }
 
-boolean password_ok() {
+boolean password_ok(char* password) {
+   char entered_code[PASSWORDLENGTH+1];
+   sprintf(entered_code, "%.*s%.*s", PASSWORDLENGTH - 1 - code_queue.insert_point, code_queue.code[code_queue.insert_point], code_queue.insert_point, code_queue.code);
+   debug(code_queue.code);
+   debug(entered_code);
+   
    return false;
+}
+
+/* Adds a character to the circular queue */
+void add_char_to_code(char letter) {
+   if (code_queue.insert_point == PASSWORDLENGTH - 1) {    /*step-1*/
+      code_queue.insert_point = 0;    /*step-2*/
+   } else {
+      code_queue.insert_point++;   /*step-3*/
+   }
+
+   code_queue.code[code_queue.insert_point] = letter; /*step-b*/
+}
+
+void setup() {
+#ifdef DEBUG
+   Serial.begin(9600);
+#endif
+   pinMode(GREENLEDPIN, OUTPUT);
+   pinMode(REDLEDPIN, OUTPUT);
+   pinMode(BUTTONPIN, INPUT);
+
+   code_queue.code[PASSWORDLENGTH] = NULL;
+   code_queue.insert_point=-1;
+   set_status_not_ok();
 }
 
 void loop() {
    int x = get_axis()-1;
    int y = get_axis()-1;
    char letter = alphabet[x][y];
-#ifdef DEBUG
-   Serial.println(letter);
-#endif
+   add_char_to_code(letter);
 
-   if (password_ok) {
-      digitalWrite(redLedPin, LOW);
-      digitalWrite(greenLedPin, HIGH);
+   if (password_ok(code_queue.code) == true) {
+      set_status_ok();
    } else {
-      digitalWrite(redLedPin, HIGH);
-      digitalWrite(greenLedPin, LOW);
+      set_status_not_ok();
    }
 }
