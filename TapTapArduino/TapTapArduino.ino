@@ -5,16 +5,16 @@
  */
 
 #define DEBUG true
-#define AXISVALTICKS 10
-#define RESOLUTION 20
+#define AXISVALTICKS 15
+#define RESOLUTION 10
 #define SILENTTHRESHHOLD 2
 
 #define REDLEDPIN 2
 #define GREENLEDPIN 3
 #define BUTTONPIN 13
-#define PASSWORDLENGTH 5
+#define PASSWORDLENGTH 4
 
-static char password[] = "HALLO";
+static char password[] = "HELO";
 static char alphabet[5][5] = {{'A','B','C','D','E' },{'F','G','H','I','J'},{'L','M','N','O','P'},{'Q','R','S','T','U'},{'V','W','X','Y','Z'}};
    
 struct queue {
@@ -53,8 +53,8 @@ int get_axis() {
             tap = false;
             debug("tap");
             while (digitalRead(BUTTONPIN) == LOW) {
+               //Wait for "off" signal to prevent repeats
             }
-            debug("released");
          } else {
             if (value > 0) {
                silent_duration++;
@@ -74,12 +74,22 @@ int get_axis() {
    }
 }
 
-boolean password_ok(char* password) {
-   char entered_code[PASSWORDLENGTH+1];
-   sprintf(entered_code, "%.*s%.*s", PASSWORDLENGTH - 1 - code_queue.insert_point, code_queue.code[code_queue.insert_point], code_queue.insert_point, code_queue.code);
-   debug(code_queue.code);
-   debug(entered_code);
+char* get_entered_code() {
+   char entered_code[PASSWORDLENGTH];
+   int pointer = code_queue.insert_point;
+      
+   for (int i=0; i < PASSWORDLENGTH - 1; i++) {
+      entered_code[i] = code_queue.code[pointer];
+      if (pointer < PASSWORDLENGTH) pointer++;
+      else pointer = 0;
+   }
    
+   debug(entered_code);
+   return entered_code;
+}
+
+boolean password_ok(char* password) {
+   char* entered_code = get_entered_code();
    return false;
 }
 
@@ -102,8 +112,14 @@ void setup() {
    pinMode(REDLEDPIN, OUTPUT);
    pinMode(BUTTONPIN, INPUT);
 
+   //Initialize code queue;
+   for (int i=0; i < PASSWORDLENGTH; i++) {
+      code_queue.code[i] = '_';
+   }
    code_queue.code[PASSWORDLENGTH] = NULL;
    code_queue.insert_point=-1;
+   debug(code_queue.code);
+
    set_status_not_ok();
 }
 
