@@ -3,6 +3,7 @@
  * 
  * Listens for tap codes from a button. Lights up led when tap code matches password
  */
+#include <stdio.h>
 
 #define DEBUG true
 #define AXISVALTICKS 15
@@ -12,9 +13,9 @@
 #define REDLEDPIN 2
 #define GREENLEDPIN 3
 #define BUTTONPIN 13
-#define PASSWORDLENGTH 4
+#define PASSWORDLENGTH 5
 
-static char password[] = "HELO";
+static String password = "HELLO";
 static char alphabet[5][5] = {{'A','B','C','D','E' },{'F','G','H','I','J'},{'L','M','N','O','P'},{'Q','R','S','T','U'},{'V','W','X','Y','Z'}};
    
 struct queue {
@@ -22,23 +23,25 @@ struct queue {
    int insert_point;  
 } code_queue;
 
-void set_status_ok() {
-   digitalWrite(REDLEDPIN, LOW);
-   digitalWrite(GREENLEDPIN, HIGH);
-}
-
-void set_status_not_ok() {
-   digitalWrite(REDLEDPIN, HIGH);
-   digitalWrite(GREENLEDPIN, LOW);
-}
-
 void debug(char* message) {
 #ifdef DEBUG
    Serial.println(message);
 #endif
 }
 
-int get_axis() {
+void set_status_ok() {
+   debug("Recieved correct tap code");
+   digitalWrite(REDLEDPIN, LOW);
+   digitalWrite(GREENLEDPIN, HIGH);
+}
+
+void set_status_not_ok() {
+   debug("No matching tap code recieved");
+   digitalWrite(REDLEDPIN, HIGH);
+   digitalWrite(GREENLEDPIN, LOW);
+}
+
+int get_axis_value() {
    int silent_duration = 0;
    int value = 0;
    int tick_count = 0;
@@ -74,23 +77,21 @@ int get_axis() {
    }
 }
 
-char* get_entered_code() {
-   char entered_code[PASSWORDLENGTH];
+String get_entered_code() {
    int pointer = code_queue.insert_point;
-      
-   for (int i=0; i < PASSWORDLENGTH - 1; i++) {
-      entered_code[i] = code_queue.code[pointer];
-      if (pointer < PASSWORDLENGTH) pointer++;
-      else pointer = 0;
-   }
-   
-   debug(entered_code);
-   return entered_code;
+   if (pointer >= PASSWORDLENGTH) pointer = 0;
+   String queue = String(code_queue.code);
+   String entered = queue.substring(pointer+1) + queue.substring(0, pointer+1);
+#ifdef DEBUG
+   char entered_char_array[entered.length()+1];
+   entered.toCharArray(entered_char_array, entered.length()+1);
+   debug(entered_char_array);
+#endif
+   return entered;
 }
 
-boolean password_ok(char* password) {
-   char* entered_code = get_entered_code();
-   return false;
+boolean password_ok(String entered_code) {
+   return entered_code.equals(password);
 }
 
 /* Adds a character to the circular queue */
@@ -113,23 +114,24 @@ void setup() {
    pinMode(BUTTONPIN, INPUT);
 
    //Initialize code queue;
-   for (int i=0; i < PASSWORDLENGTH; i++) {
-      code_queue.code[i] = '_';
+   for (int i=0; i <= PASSWORDLENGTH; i++) {
+      add_char_to_code('_');
    }
    code_queue.code[PASSWORDLENGTH] = NULL;
    code_queue.insert_point=-1;
-   debug(code_queue.code);
 
    set_status_not_ok();
 }
 
 void loop() {
-   int x = get_axis()-1;
-   int y = get_axis()-1;
-   char letter = alphabet[x][y];
+   debug("X");
+   int x = get_axis_value();
+   debug("Y");
+   int y = get_axis_value();
+   char letter = alphabet[x-1][y-1];
    add_char_to_code(letter);
 
-   if (password_ok(code_queue.code) == true) {
+   if (password_ok(get_entered_code()) == true) {
       set_status_ok();
    } else {
       set_status_not_ok();
