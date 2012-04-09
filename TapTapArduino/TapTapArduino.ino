@@ -77,7 +77,7 @@ int getAxisValue() {
          }
       }
 
-      if (value >= sizeof(alphabet)) {
+      if (value >= sizeof(alphabet[0])) {
          return value;
       }
 
