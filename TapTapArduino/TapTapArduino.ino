@@ -9,6 +9,7 @@
 #define AXISVALTICKS 15
 #define RESOLUTION 10
 #define SILENTTHRESHHOLD 2
+#define BLINKDURATION 100
 
 #define REDLEDPIN 2
 #define GREENLEDPIN 3
@@ -35,6 +36,14 @@ void setStatusOk() {
    digitalWrite(GREENLEDPIN, HIGH);
 }
 
+void tapFeedback() {
+   debug("tap");
+   digitalWrite(GREENLEDPIN, HIGH);
+   delay(BLINKDURATION);
+   digitalWrite(GREENLEDPIN, LOW);
+   digitalWrite(REDLEDPIN, HIGH);
+}
+
 void setStatusNotOk() {
    debug("No matching tap code recieved");
    digitalWrite(REDLEDPIN, HIGH);
@@ -54,7 +63,7 @@ int getAxisValue() {
             silentDuration = 0;
             value++;
             tap = false;
-            debug("tap");
+            tapFeedback();
             while (digitalRead(BUTTONPIN) == LOW) {
                //Wait for "off" signal to prevent repeats
             }
