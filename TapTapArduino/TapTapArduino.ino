@@ -13,15 +13,15 @@
 #define REDLEDPIN 2
 #define GREENLEDPIN 3
 #define BUTTONPIN 13
-#define PASSWORDLENGTH 5
 
-static String password = "HELLO";
+static String password = "HALLO";
+int passwordLength = 0;
 static char alphabet[5][5] = {{'A','B','C','D','E' },{'F','G','H','I','J'},{'L','M','N','O','P'},{'Q','R','S','T','U'},{'V','W','X','Y','Z'}};
    
 struct queue {
-   char code[PASSWORDLENGTH+1];
-   int insert_point;  
-} code_queue;
+   char* code;
+   int insertPoint;  
+} codeQueue;
 
 void debug(char* message) {
 #ifdef DEBUG
@@ -29,29 +29,29 @@ void debug(char* message) {
 #endif
 }
 
-void set_status_ok() {
+void setStatusOk() {
    debug("Recieved correct tap code");
    digitalWrite(REDLEDPIN, LOW);
    digitalWrite(GREENLEDPIN, HIGH);
 }
 
-void set_status_not_ok() {
+void setStatusNotOk() {
    debug("No matching tap code recieved");
    digitalWrite(REDLEDPIN, HIGH);
    digitalWrite(GREENLEDPIN, LOW);
 }
 
-int get_axis_value() {
-   int silent_duration = 0;
+int getAxisValue() {
+   int silentDuration = 0;
    int value = 0;
-   int tick_count = 0;
+   int tickCount = 0;
    boolean tap = false;
    while (true) {
       tap  = (digitalRead(BUTTONPIN) == LOW);
-      if (tick_count == AXISVALTICKS) {
-         tick_count = 0;
+      if (tickCount == AXISVALTICKS) {
+         tickCount = 0;
          if (tap) {
-            silent_duration = 0;
+            silentDuration = 0;
             value++;
             tap = false;
             debug("tap");
@@ -60,8 +60,8 @@ int get_axis_value() {
             }
          } else {
             if (value > 0) {
-               silent_duration++;
-               if (silent_duration > SILENTTHRESHHOLD) {
+               silentDuration++;
+               if (silentDuration > SILENTTHRESHHOLD) {
                   return value;
                }
             }
@@ -72,37 +72,37 @@ int get_axis_value() {
          return value;
       }
 
-      tick_count++;
+      tickCount++;
       delay (RESOLUTION);
    }
 }
 
-String get_entered_code() {
-   int pointer = code_queue.insert_point;
-   if (pointer >= PASSWORDLENGTH) pointer = 0;
-   String queue = String(code_queue.code);
+String getEnteredCode() {
+   int pointer = codeQueue.insertPoint;
+   if (pointer >= passwordLength) pointer = 0;
+   String queue = String(codeQueue.code);
    String entered = queue.substring(pointer+1) + queue.substring(0, pointer+1);
 #ifdef DEBUG
-   char entered_char_array[entered.length()+1];
-   entered.toCharArray(entered_char_array, entered.length()+1);
-   debug(entered_char_array);
+   char enteredCharArray[entered.length()+1];
+   entered.toCharArray(enteredCharArray, entered.length()+1);
+   debug(enteredCharArray);
 #endif
    return entered;
 }
 
-boolean password_ok(String entered_code) {
-   return entered_code.equals(password);
+boolean passwordOk(String enteredCode) {
+   return enteredCode.equals(password);
 }
 
 /* Adds a character to the circular queue */
-void add_char_to_code(char letter) {
-   if (code_queue.insert_point == PASSWORDLENGTH - 1) {    /*step-1*/
-      code_queue.insert_point = 0;    /*step-2*/
+void addCharToCode(char character) {
+   if (codeQueue.insertPoint == passwordLength - 1) {    /*step-1*/
+      codeQueue.insertPoint = 0;    /*step-2*/
    } else {
-      code_queue.insert_point++;   /*step-3*/
+      codeQueue.insertPoint++;   /*step-3*/
    }
 
-   code_queue.code[code_queue.insert_point] = letter; /*step-b*/
+   codeQueue.code[codeQueue.insertPoint] = character; /*step-b*/
 }
 
 void setup() {
@@ -114,26 +114,28 @@ void setup() {
    pinMode(BUTTONPIN, INPUT);
 
    //Initialize code queue;
-   for (int i=0; i <= PASSWORDLENGTH; i++) {
-      add_char_to_code('_');
+   passwordLength = password.length(); 
+   codeQueue.code = (char*) malloc(passwordLength + 1);
+   for (int i=0; i <= passwordLength; i++) {
+      addCharToCode('_');
    }
-   code_queue.code[PASSWORDLENGTH] = NULL;
-   code_queue.insert_point=-1;
+   codeQueue.code[passwordLength] = NULL;
+   codeQueue.insertPoint=-1;
 
-   set_status_not_ok();
+   setStatusNotOk();
 }
 
 void loop() {
-   debug("X");
-   int x = get_axis_value();
-   debug("Y");
-   int y = get_axis_value();
+   debug("ROW");
+   int x = getAxisValue();
+   debug("COLUMN");
+   int y = getAxisValue();
    char letter = alphabet[x-1][y-1];
-   add_char_to_code(letter);
+   addCharToCode(letter);
 
-   if (password_ok(get_entered_code()) == true) {
-      set_status_ok();
+   if (passwordOk(getEnteredCode()) == true) {
+      setStatusOk();
    } else {
-      set_status_not_ok();
+      setStatusNotOk();
    }
 }
