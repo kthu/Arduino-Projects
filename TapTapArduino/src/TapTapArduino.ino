@@ -7,8 +7,8 @@
 
 #define DEBUG true
 #define AXISVALTICKS 15
-#define RESOLUTION 10
-#define SILENTTHRESHHOLD 2
+#define RESOLUTION 2
+#define SILENTTHRESHHOLD 20
 #define BLINKDURATION 100
 
 #define REDLEDPIN 2
@@ -54,9 +54,14 @@ int getAxisValue() {
    int silentDuration = 0;
    int value = 0;
    int tickCount = 0;
+   int tapVal=0;
    boolean tap = false;
    while (true) {
       tap  = (digitalRead(BUTTONPIN) == LOW);
+      tapVal = (analogRead(BUTTONPIN));
+#ifdef DEBUG
+      Serial.println(tapVal);
+#endif
       if (tickCount == AXISVALTICKS) {
          tickCount = 0;
          if (tap) {
